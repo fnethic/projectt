@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: gaming-stats
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    preDeployCommand: python manage.py migrate --noinput
+    startCommand: gunicorn config.wsgi:application
+    healthCheckPath: /
+    disk:
+      name: gaming-stats-data
+      mountPath: /opt/render/project/src/var
+      sizeGB: 1
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "0"
+      - key: ALLOWED_HOSTS
+        value: .onrender.com,localhost,127.0.0.1
+      - key: SQLITE_PATH
+        value: /opt/render/project/src/var/db.sqlite3
